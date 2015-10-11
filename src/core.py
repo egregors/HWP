@@ -8,7 +8,7 @@
     todo: this
 """
 from __future__ import unicode_literals, print_function
-from config import ANGLE, NODES_IN_WHEEL
+from config import ANGLE, NODES_IN_WHEEL, BEGIN_POSITION
 import matplotlib.pyplot as plt
 import warnings
 import numpy as np
@@ -109,8 +109,8 @@ class ProteinSequence(object):
                     radius += 3
 
                 radius_list.append(radius)
-                nodes.append(ANGLE * position)
-                plt.text(ANGLE * position, radius, position + 1)
+                nodes.append(BEGIN_POSITION + ANGLE * position * -1)
+                plt.text(BEGIN_POSITION + ANGLE * position * -1, radius, position + 1)
 
             wheels_in_seq = int(len(self.variability) / NODES_IN_WHEEL)
 
@@ -125,7 +125,7 @@ class ProteinSequence(object):
                         variability_wheel[idx] += tail[idx]
 
             for position, node in enumerate(variability_wheel):
-                plt.text(ANGLE * position, radius + 3, node)
+                plt.text(BEGIN_POSITION + ANGLE * position * -1, radius + 3, node)
 
             print('[{}]: AVG variability vector = {}'.format(__name__, variability_wheel))
 
@@ -136,7 +136,7 @@ class ProteinSequence(object):
             # TODO: Calc arrow
             plt.arrow(
                 0, 0,
-                M * ANGLE,  # angle
+                BEGIN_POSITION + M * ANGLE * -1,  # angle
                 5,  # length
             )
 
