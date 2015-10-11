@@ -16,11 +16,18 @@ __author__ = '@egregors'
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-f", "--file", dest="filename",
-                      help="...", metavar="FILE")
+                      help="path to file with protein group", metavar="FILE")
+    parser.add_option("-s", "--save", dest="path_to_save",
+                      help="path to save image (default: ./output/out.png)", metavar="PATH")
 
     (options, args) = parser.parse_args()
 
     if options.filename is not None:
         print('[{}]: Load sequence from: {}'.format(__name__, options.filename))
         print('* * *')
-        protein_req = ProteinSequence(file_name=options.filename)
+        if options.path_to_save is not  None:
+            protein_req = ProteinSequence(file_name=options.filename, save_to=options.path_to_save)
+        else:
+            protein_req = ProteinSequence(file_name=options.filename)
+    else:
+        print('python hwp.py -h')

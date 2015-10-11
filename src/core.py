@@ -8,6 +8,13 @@
     todo: this
 """
 from __future__ import unicode_literals, print_function
+from config import ANGLE, NODES_IN_WHEEL
+import matplotlib.pyplot as plt
+import warnings
+import numpy as np
+import os
+
+warnings.filterwarnings("ignore")
 
 __author__ = '@egregors'
 
@@ -34,7 +41,8 @@ class Protein(object):
 
 
 class ProteinSequence(object):
-    def __init__(self, file_name=None):
+    def __init__(self, file_name=None, save_to=os.path.join(os.getcwd(), 'output/out.png')):
+        self.save_to = save_to
         self.file_name = file_name if file_name is not None else None
         if self.file_name is not None:
             self.seq = []
@@ -50,7 +58,7 @@ class ProteinSequence(object):
             self.seq = None
         self.variability = []
         self.create_variability_vector()
-
+        self.make_plot()
         super(ProteinSequence, self).__init__()
 
     def print_seq(self):
@@ -77,3 +85,65 @@ class ProteinSequence(object):
                 )
 
             print('[{}]: Variability vector = {}'.format(__name__, self.variability))
+
+    def make_plot(self):
+
+        if len(self.variability) != 0:
+
+            radius_list = []
+            nodes = []
+            radius = 5
+            area = 1200
+            color = 'y'  # yellow
+
+            print('[{}]: Creating plot...'.format(__name__))
+            plt.subplot(111, polar=True)
+            plt.title('HWP - {}'.format(self.file_name))
+            plt.axis('off')
+
+            variability_wheel = [x * 0 for x in range(NODES_IN_WHEEL)]
+
+            for position, node in enumerate(self.variability):
+
+                if position % NODES_IN_WHEEL == 0:
+                    radius += 3
+
+                radius_list.append(radius)
+                nodes.append(ANGLE * position)
+                plt.text(ANGLE * position, radius, position + 1)
+
+            wheels_in_seq = int(len(self.variability) / NODES_IN_WHEEL)
+
+            for pos in range(wheels_in_seq + 1):
+                if pos != wheels_in_seq - 1:
+                    tail = self.variability[:NODES_IN_WHEEL]
+                    for idx in range(len(tail)):
+                        variability_wheel[idx] += tail[idx]
+                else:
+                    tail = self.variability[wheels_in_seq * NODES_IN_WHEEL:]
+                    for idx in range(len(tail)):
+                        variability_wheel[idx] += tail[idx]
+
+            for position, node in enumerate(variability_wheel):
+                plt.text(ANGLE * position, radius + 3, node)
+
+            print('[{}]: AVG variability vector = {}'.format(__name__, variability_wheel))
+
+            plt.scatter(x=nodes, y=radius_list, s=area, c=color)
+
+            M = variability_wheel.index(max(variability_wheel))
+
+            # TODO: Calc arrow
+            plt.arrow(
+                0, 0,
+                M * ANGLE,  # angle
+                5,  # length
+            )
+
+            desc = '''
+            var: {variability}
+            '''.format(variability=variability_wheel)
+            plt.text(19 * np.pi / 16, 33, desc)
+
+            plt.savefig(self.save_to)
+            print('[{}]: Save image into {}'.format(__name__, self.save_to))
