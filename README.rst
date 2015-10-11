@@ -2,7 +2,7 @@
 ===========================
 **ver. 0.0.1**
 
-Simple app for draw helical wheel with variability vector for protein groups.
+Simple app to draw helical wheel with variability vector for protein groups.
 
 .. image:: https://raw.githubusercontent.com/Egregors/HWP/master/output/terminal.png
     :scale: 50%
@@ -20,6 +20,7 @@ Required
 How to use
 ----------
 
+0. Check settings in ./config.py
 1. Put your protein-group configuration into ./raw folder (configuration example already in ./raw)
 2. To get help type "python hwp.py -h"
 3. To run script type "python hwp.py -f raw/list_ntermini.txt"
