@@ -1,6 +1,6 @@
 [HWP] Helical Wheel Painter
 ===========================
-**ver. 0.0.1**
+**ver. 0.1.0**
 
 Simple app to draw helical wheel with variability vector for protein groups.
 
