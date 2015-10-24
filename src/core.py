@@ -8,7 +8,7 @@
     todo: this
 """
 from __future__ import unicode_literals, print_function
-from config import ANGLE, NODES_IN_WHEEL, BEGIN_POSITION
+from config import ANGLE, NODES_IN_WHEEL, BEGIN_POSITION, DIRECTION
 import matplotlib.pyplot as plt
 import warnings
 import numpy as np
@@ -21,6 +21,33 @@ __author__ = '@egregors'
 
 class ChainLengthExeption(Exception):
     pass
+
+
+class Point(object):
+    def __init__(self, title=None, radius=None, angle=None, x=None, y=None):
+        self.title = title
+        self.radius = radius
+        self.angle = angle
+
+        self.x = x
+        self.y = y
+
+        if x is None and y is None: self.calc_xy()
+        if angle is None and radius is None: self.calc_ra()
+
+        super(Point, self).__init__()
+
+    def calc_xy(self):
+        self.x = self.radius * np.cos(self.angle)
+        self.y = self.radius * np.sin(self.angle)
+
+    def calc_ra(self):
+        self.radius = np.sqrt(self.x ** 2 + self.y ** 2)
+        self.angle = np.arctan2(self.y, self.x)
+
+    def __repr__(self):
+        return 'ttl: {}\nradius: {}\nangle: {}\nx: {}\ny: {}'.format(self.title, self.radius, self.angle,
+                                                                     self.x, self.y)
 
 
 class Protein(object):
@@ -109,8 +136,8 @@ class ProteinSequence(object):
                     radius += 3
 
                 radius_list.append(radius)
-                nodes.append(BEGIN_POSITION + ANGLE * position * -1)
-                plt.text(BEGIN_POSITION + ANGLE * position * -1, radius, position + 1)
+                nodes.append(BEGIN_POSITION + ANGLE * position * DIRECTION)
+                plt.text(BEGIN_POSITION + ANGLE * position * DIRECTION, radius, position + 1)
 
             wheels_in_seq = int(len(self.variability) / NODES_IN_WHEEL)
 
@@ -125,25 +152,42 @@ class ProteinSequence(object):
                         variability_wheel[idx] += tail[idx]
 
             for position, node in enumerate(variability_wheel):
-                plt.text(BEGIN_POSITION + ANGLE * position * -1, radius + 3, node)
+                plt.text(BEGIN_POSITION + ANGLE * position * DIRECTION, radius + 3, node)
 
             print('[{}]: AVG variability vector = {}'.format(__name__, variability_wheel))
 
             plt.scatter(x=nodes, y=radius_list, s=area, c=color)
 
-            M = variability_wheel.index(max(variability_wheel))
+            # Translation to different coordinate system
+            points = []
+            for idx, node in enumerate(variability_wheel):
+                points.append(Point(idx, node, ANGLE * idx))
+
+            # Calc AVG point for all dots
+            avg_x = sum([point.x for point in points]) / len(points)
+            avg_y = sum([point.y for point in points]) / len(points)
+
+            # Translation back to polar coordinate system
+
+            variability_vector = Point(title='AVG', x=avg_x, y=avg_y)
+            print('* * *')
+            print('[{}]: AVG variability point = \n{}'.format(__name__, variability_vector))
+
 
             # TODO: Calc arrow
             plt.arrow(
                 0, 0,
-                BEGIN_POSITION + M * ANGLE * -1,  # angle
-                5,  # length
+                BEGIN_POSITION + variability_vector.radius * variability_vector.angle * DIRECTION,  # angle
+                variability_vector.radius,  # length
             )
 
             desc = '''
-            var: {variability}
-            '''.format(variability=variability_wheel)
+                var: {variability}
+                avg point length: {radius}
+                '''.format(variability=variability_wheel, radius=variability_vector.radius)
             plt.text(19 * np.pi / 16, 33, desc)
 
             plt.savefig(self.save_to)
-            print('[{}]: Save image into {}'.format(__name__, self.save_to))
+
+            print('* * *')
+            print('[{}]: Done'.format(__name__, variability_vector))

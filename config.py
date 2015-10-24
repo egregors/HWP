@@ -13,9 +13,12 @@
 
     "BEGIN_POSITION" — position of first amino-acid.
     By default - pi/2
+
+    "DIRECTION" – clockwise: -1, else 1
 """
 import numpy as np
 
 ANGLE = np.pi * 5 / 9 # 100 degrees
 NODES_IN_WHEEL = 18 # for 100 degrees ti's 18, yah
 BEGIN_POSITION = np.pi / 2
+DIRECTION = -1
