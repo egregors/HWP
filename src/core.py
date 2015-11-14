@@ -178,7 +178,7 @@ class ProteinSequence(object):
             plt.arrow(
                 0, 0,
                 BEGIN_POSITION + variability_vector.radius * variability_vector.angle * DIRECTION,  # angle
-                variability_vector.radius,  # length
+                5,  # length
             )
 
             desc = '''
